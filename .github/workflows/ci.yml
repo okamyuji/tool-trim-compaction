@@ -1,0 +1,9 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  security:
+    uses: okamyuji/reusable-workflows/.github/workflows/security-scan.yml@v1
