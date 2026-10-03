@@ -10,3 +10,9 @@ permissions:
 jobs:
   security:
     uses: okamyuji/reusable-workflows/.github/workflows/security-scan.yml@v1
+
+  release:
+    needs: security
+    permissions:
+      contents: write
+    uses: okamyuji/reusable-workflows/.github/workflows/semver-tag.yml@v1
