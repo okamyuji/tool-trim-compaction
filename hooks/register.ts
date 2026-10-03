@@ -12,7 +12,13 @@ export const register: Register = (on) => {
 
   on('session.compact', async ($, e, next) => {
     if (e.trigger === 'precompute') return next(e);
-    const out = trimToolHistory(e.messages, KEEP_RECENT_MESSAGES);
+    let out;
+    try {
+      out = trimToolHistory(e.messages, KEEP_RECENT_MESSAGES);
+    } catch (error) {
+      $.ui.log(`tool-trim: failed (${error instanceof Error ? error.message : String(error)}); standard summary`);
+      return next(e);
+    }
     if (out.reduction < MIN_REDUCTION) {
       $.ui.log(`tool-trim: ${pct(out.reduction)} reduction, below ${pct(MIN_REDUCTION)}; standard summary`);
       return next(e);

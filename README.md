@@ -32,8 +32,10 @@ compactionでは、次の範囲のメッセージを残します。
 
 ```bash
 mkdir -p ~/.claude/local-plugins
-git clone https://github.com/okamyuji/tool-trim-compaction.git ~/.claude/local-plugins/tool-trim-compaction
+git clone --branch v0.1.0 https://github.com/okamyuji/tool-trim-compaction.git ~/.claude/local-plugins/tool-trim-compaction
 ```
+
+このプラグインは、Claude Codeの中で会話の内容を書き換えます。`--branch`で取得する版を決めておけば、後から入った変更を確かめないまま読み込むことはありません。新しい版に上げるときは、変更内容を読んでから`git checkout <タグ>`で切り替えてください。
 
 ### 2. Claude Codeに読み込ませる
 

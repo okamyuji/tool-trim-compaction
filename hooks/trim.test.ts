@@ -16,7 +16,7 @@ const result = (id: string, text = 'r'.repeat(2000)): SessionMessage => ({
 });
 
 describe('trimToolHistory', () => {
-  test('固定範囲より古いツール呼び出しと結果を、ペアごと消す', async () => {
+  test('残す範囲より古いツール呼び出しと結果を、ペアごと消す', async () => {
     const input = [user('依頼'), call('a'), result('a'), user('次'), ...Array.from({ length: 6 }, (_, i) => user(`最近${i}`))];
     const out = trimToolHistory(input, 6);
     expect(out.messages.some((m) => m.toolUses.length > 0)).toBe(false);
@@ -34,9 +34,16 @@ describe('trimToolHistory', () => {
     expect(resultIds).toEqual(['first', 'recent']);
   });
 
-  test('結果だけが固定範囲にあり呼び出しが古い場合は、結果も消す（呼び出しの無い結果を残さない）', async () => {
+  test('結果だけが直近の範囲にあり呼び出しが古い場合は、結果も消す（呼び出しの無い結果を残さない）', async () => {
     const input = [user('依頼'), call('old'), user('間'), result('old')];
     const out = trimToolHistory(input, 1);
+    const resultIds = out.messages.flatMap((m) => (m.toolResults ?? []).map((r) => r.tool_use_id));
+    expect(resultIds).toEqual([]);
+  });
+
+  test('呼び出しが会話に無い結果は、直近の範囲にあっても消す', async () => {
+    const input = [user('依頼'), user('間'), result('orphan')];
+    const out = trimToolHistory(input, 6);
     const resultIds = out.messages.flatMap((m) => (m.toolResults ?? []).map((r) => r.tool_use_id));
     expect(resultIds).toEqual([]);
   });

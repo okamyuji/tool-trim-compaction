@@ -20,21 +20,15 @@ function chars(m: SessionMessage): number {
 export function trimToolHistory(input: readonly SessionMessage[], keepRecent: number): TrimResult {
   const isPinned = (i: number) => i === 0 || i >= input.length - keepRecent;
   const pinnedCalls = new Set<string>();
-  const allCalls = new Set<string>();
   input.forEach((m, i) => {
-    for (const t of m.toolUses) {
-      allCalls.add(t.tool_use_id);
-      if (isPinned(i)) pinnedCalls.add(t.tool_use_id);
-    }
+    if (isPinned(i)) for (const t of m.toolUses) pinnedCalls.add(t.tool_use_id);
   });
 
   let dropped = 0;
   const messages: SessionMessage[] = [];
-  input.forEach((m, i) => {
+  input.forEach((m) => {
     const toolUses = m.toolUses.filter((t) => pinnedCalls.has(t.tool_use_id));
-    const toolResults = (m.toolResults ?? []).filter(
-      (r) => pinnedCalls.has(r.tool_use_id) || (isPinned(i) && !allCalls.has(r.tool_use_id)),
-    );
+    const toolResults = (m.toolResults ?? []).filter((r) => pinnedCalls.has(r.tool_use_id));
     dropped += m.toolUses.length - toolUses.length;
     if (toolUses.length === m.toolUses.length && toolResults.length === (m.toolResults ?? []).length) {
       messages.push(m);
